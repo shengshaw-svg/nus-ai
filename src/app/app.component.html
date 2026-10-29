@@ -1,0 +1,136 @@
+<div class="app-shell">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Snip link manager">
+      <span class="brand-mark" aria-hidden="true">s</span>
+      <span class="brand-name">snip</span>
+    </a>
+    <div class="api-status" aria-label="API at localhost port 3000">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span>API</span>
+      <code>localhost:3000</code>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="overview" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">LINKS / WORKSPACE</p>
+        <h1 id="page-title">Link manager</h1>
+        <p class="overview-copy">Shorten destinations and keep their performance in view.</p>
+      </div>
+      <div class="metrics" aria-label="Link statistics">
+        <div class="metric">
+          <span class="metric-value">{{ links().length }}</span>
+          <span class="metric-label">links</span>
+        </div>
+        <span class="metric-divider" aria-hidden="true"></span>
+        <div class="metric">
+          <span class="metric-value">{{ totalHits() }}</span>
+          <span class="metric-label">total visits</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="create-section" aria-labelledby="create-title">
+      <div class="section-heading">
+        <span class="step-index" aria-hidden="true">01</span>
+        <div>
+          <h2 id="create-title">Create a short link</h2>
+          <p>Paste a destination URL to make it easier to share.</p>
+        </div>
+      </div>
+
+      <form class="link-form" (ngSubmit)="createLink()" novalidate>
+        <label for="destination-url">Destination URL</label>
+        <div class="field-row">
+          <input
+            id="destination-url"
+            name="url"
+            type="url"
+            inputmode="url"
+            autocomplete="url"
+            placeholder="https://example.com/article"
+            [ngModel]="urlDraft()"
+            (ngModelChange)="urlDraft.set($event)"
+            [disabled]="isSubmitting()"
+          >
+          <button class="primary-button" type="submit" [disabled]="isSubmitting()">
+            <span>{{ isSubmitting() ? 'Creating...' : 'Shorten URL' }}</span>
+            <span aria-hidden="true">&gt;</span>
+          </button>
+        </div>
+        <p class="field-note">HTTP and HTTPS addresses only.</p>
+      </form>
+
+      @if (errorMessage()) {
+        <p class="feedback error" role="alert">{{ errorMessage() }}</p>
+      }
+
+      @if (recentLink(); as recent) {
+        <div class="result" aria-live="polite">
+          <div class="result-copy">
+            <span class="result-label">SHORT URL READY</span>
+            <a class="result-url" [href]="recent.shortUrl" target="_blank" rel="noopener noreferrer">
+              {{ recent.shortUrl }}
+            </a>
+          </div>
+          <button class="copy-button" type="button" (click)="copyShortUrl(recent.shortUrl)">
+            {{ copyState() === 'copied' ? 'Copied' : copyState() === 'error' ? 'Copy manually' : 'Copy link' }}
+          </button>
+        </div>
+      }
+    </section>
+
+    <section class="links-section" aria-labelledby="links-title">
+      <div class="list-heading">
+        <div class="section-heading">
+          <span class="step-index secondary" aria-hidden="true">02</span>
+          <div>
+            <h2 id="links-title">Your links</h2>
+            <p>Every short link created with Snip.</p>
+          </div>
+        </div>
+        <span class="list-count">{{ links().length }} total</span>
+      </div>
+
+      @if (isLoading()) {
+        <p class="list-message" role="status">Loading links...</p>
+      } @else if (links().length === 0) {
+        <div class="empty-state">
+          <span class="empty-mark" aria-hidden="true">+</span>
+          <p>No links yet</p>
+          <span>Your first shortened URL will appear here.</span>
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Short code</th>
+                <th scope="col">Original URL</th>
+                <th class="hits-heading" scope="col">Visits</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (link of links(); track link.code) {
+                <tr>
+                  <td>
+                    <a class="code-link" [href]="link.shortUrl" target="_blank" rel="noopener noreferrer">
+                      {{ link.code }}
+                    </a>
+                  </td>
+                  <td class="destination-cell">
+                    <a [href]="link.url" target="_blank" rel="noopener noreferrer" [title]="link.url">
+                      {{ link.url }}
+                    </a>
+                  </td>
+                  <td class="hits-cell">{{ link.hits }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </main>
+</div>
