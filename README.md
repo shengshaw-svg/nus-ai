@@ -22,10 +22,10 @@ Each project lives at the root of its own orphan branch. The `main` branch mount
 
 ## Clone
 
-Use `--recurse-submodules` to populate all three project folders:
+Select the `main` superproject branch and use `--recurse-submodules` to populate all three project folders. The explicit branch is needed while GitHub's repository default still points to `backend`:
 
 ```sh
-git clone --recurse-submodules https://github.com/shengshaw-svg/nus-ai.git
+git clone --branch main --recurse-submodules https://github.com/shengshaw-svg/nus-ai.git
 cd nus-ai
 ```
 
